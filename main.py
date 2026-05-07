@@ -41,6 +41,45 @@ async def start_command(message: types.Message):
         reply_markup=main_menu()  # <--- ВОТ ЭТА СТРОКА ОБЯЗАТЕЛЬНА
     )
 
+
+
+
+
+
+# 1. Кнопка Профиль
+@dp.message(lambda message: "Мой профиль" in message.text)
+async def my_profile(message: types.Message):
+    await message.answer(
+        f"👤 **Профиль пользователя**:\n\n"
+        f"🆔 Ваш ID: `{message.from_user.id}`\n"
+        f"👤 Имя: {message.from_user.first_name}\n"
+        f"🔗 Ник: @{message.from_user.username}"
+    )
+
+# 2. Кнопка О проекте
+@dp.message(lambda message: "О проекте" in message.text)
+async def about_project(message: types.Message):
+    await message.answer(
+        "🚀 **Cassovia Dash** — это дефолтный помощничек для тебя\n"
+        "Разработано специально для мониторинга и удобного доступа к информации."
+    )
+
+# 3. Кнопка Помощь
+@dp.message(lambda message: "Помощь" in message.text)
+async def help_command(message: types.Message):
+    await message.answer(
+        "🆘 **Поддержка**\n\n"
+        "Если есть баг — ждем апдейт хуле 😎\n\n"
+        "Команды:\n"
+        "/start — Перезапустить меню\n"
+        "/admin — Панель управления"
+    )
+
+# --- 
+
+
+
+
 async def main():
     init_db()
     print("Бот запущен...")
