@@ -24,3 +24,11 @@ def add_user(user_id, username):
                        (user_id, username, date))
         conn.commit()
     conn.close()
+
+def get_all_users():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, reg_date FROM users")
+    users = cursor.fetchall()
+    conn.close()
+    return users
