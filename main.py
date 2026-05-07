@@ -3,13 +3,20 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from config import BOT_TOKEN, ADMIN_ID
 from database import init_db, add_user, get_all_users
-from aiogram.utils.keyboard import ReplyKeyboardBuilder 
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext 
 
 bot = Bot(token=BOT_TOKEN)
+
+class TicketState(StatesGroup):
+    waiting_for_text = State()
+
 def main_menu():
     builder = ReplyKeyboardBuilder()
     # Добавляем кнопки в ряд
     builder.row(types.KeyboardButton(text="📊 Мой профиль"))
+    builder.row(types.KeyboardButton(text="📝 Оставить тикет на починку/добавление"))
     builder.row(types.KeyboardButton(text="ℹ️ О проекте"), types.KeyboardButton(text="🆘 Помощь"))
     # Возвращаем готовую клавиатуру, которая подстраивается под экран
     return builder.as_markup(resize_keyboard=True)
@@ -42,7 +49,24 @@ async def start_command(message: types.Message):
     )
 
 
+@dp.message(lambda message: "Оставить тикет на починку/добавление" in message.text)
+async def start_ticket(message: types.Message, state: FSMContext):
+    await message.answer("Опишите ваш баг или предложение одним сообщением:")
+    await state.set_state(TicketState.waiting_for_text)
 
+
+
+@dp.message(TicketState.waiting_for_text)
+async def process_ticket(message: types.Message, state: FSMContext):
+    from database import add_ticket 
+    
+    add_ticket(message.from_user.id, message.text) # Сохраняем в БД
+    
+    
+    await bot.send_message(ADMIN_ID, f"🔔 **Новая заявка!**\nОт: @{message.from_user.username}\nТекст: {message.text}")
+    
+    await message.answer("✅ Ваша заявка принята! Админ скоро её рассмотрит.")
+    await state.clear()     
 
 
 
@@ -69,11 +93,20 @@ async def about_project(message: types.Message):
 async def help_command(message: types.Message):
     await message.answer(
         "🆘 **Поддержка**\n\n"
-        "Если есть баг — ждем апдейт хуле 😎\n\n"
+        "Если есть баг — ждем апдейт хуле 😿\n\n"
         "Команды:\n"
         "/start — Перезапустить меню\n"
         "/admin — Панель управления"
     )
+
+
+@dp.message()
+async def echo_all(message: types.Message):
+    await message.answer(
+        "Пожалуйста, воспользуйся кнопками в меню ниже!",
+        reply_markup=main_menu() 
+    )
+
 
 # --- 
 

@@ -11,6 +11,22 @@ def init_db():
             reg_date TEXT
         )
     """)
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS tickets 
+                        (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        user_id INTEGER, 
+                        text TEXT, 
+                        status TEXT DEFAULT 'Open')''')
+    
+    conn.commit()
+    conn.close()
+
+
+
+def add_ticket(user_id, text):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO tickets (user_id, text) VALUES (?, ?)", (user_id, text))
     conn.commit()
     conn.close()
 
