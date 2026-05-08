@@ -48,3 +48,32 @@ def get_all_users():
     users = cursor.fetchall()
     conn.close()
     return users
+
+
+def get_stats():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    
+    
+    cursor.execute("SELECT COUNT(*) FROM users")
+    total_users = cursor.fetchone()[0]
+    
+   
+    cursor.execute("SELECT COUNT(*) FROM tickets")
+    total_tickets = cursor.fetchone()[0]
+    
+   
+    cursor.execute("SELECT COUNT(*) FROM tickets WHERE status = 'Open'")
+    open_tickets = cursor.fetchone()[0]
+    
+    conn.close()
+    return total_users, total_tickets, open_tickets
+
+
+def close_ticket(ticket_id):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE tickets SET status = 'Closed' WHERE id = ?", (ticket_id,))
+    conn.commit()
+    conn.close()
